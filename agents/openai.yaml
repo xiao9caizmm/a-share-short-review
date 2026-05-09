@@ -1,0 +1,4 @@
+interface:
+  display_name: "A股短线复盘"
+  short_description: "使用妙想数据生成交易日志式A股短线复盘文章模板与策略"
+  default_prompt: "使用妙想skills获取行情、涨跌停、创新高、连板、龙虎榜和资金数据，按样本文风生成指定日期A股短线复盘。"
