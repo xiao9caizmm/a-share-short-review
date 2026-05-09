@@ -1,6 +1,6 @@
 ---
 name: a-share-short-review
-description: Generate Chinese A-share short-term daily market reviews using MXSKILLS market/search data and a punchy retail-trader replay style. Use when the user asks for A股复盘, 短线复盘, 涨停复盘, 主线/连板/创新高分析, or asks to imitate the provided April 2026 HTML review style.
+description: Generate Chinese A-share short-term daily market reviews using MXSKILLS first and Eastmoney public web APIs as fallback, with a punchy retail-trader replay style. Use when the user asks for A股复盘, 短线复盘, 涨停复盘, 主线/连板/创新高分析, or asks to imitate the provided April 2026 HTML review style.
 ---
 
 # A股短线复盘
@@ -13,9 +13,36 @@ description: Generate Chinese A-share short-term daily market reviews using MXSK
    - `mx-search`: query same-day A股复盘、创历史新高、连板股、龙虎榜、主线、资金流向.
    - For every trading-day review, also query the previous trading day for the same core market breadth and main-line context unless the user explicitly says not to. Main-line judgment must compare today with the previous trading day; do not infer a main line from a single day's strength alone.
    - For non-trading days, use `mx-search` for 周末政策、产业催化、机构策略、下周主线.
-3. Prefer structured `mx-data` values over news snippets when they conflict. Use `mx-search` for context that `mx-data` does not reliably return, especially 创历史新高数量、行业分布、连板梯队、龙虎榜和主力资金.
-4. Keep source facts internally traceable. Mention when a metric is from `mx-search`/资讯口径 and avoid over-precise claims if multiple口径 differ.
-5. Write one Markdown file per date using `YYYY-MM-DD+A股短线复盘.md` unless the user specifies another naming convention.
+3. If 妙想 returns empty, malformed, rate-limited, irrelevant, or clearly unstable data, fall back to 东方财富 public web APIs for the missing fields. Keep the fallback low-frequency and source-tagged.
+4. Prefer structured `mx-data` values over news snippets when they conflict. If using fallback data, prefer 东方财富 structured JSON over text snippets. Use `mx-search`/资讯 only for context that structured sources do not reliably return, especially 创历史新高数量、行业分布、连板梯队、龙虎榜和主力资金.
+5. Keep source facts internally traceable. Mention when a metric is from `mx-search`/资讯口径 or 东方财富公开接口 and avoid over-precise claims if multiple口径 differ.
+6. Write one Markdown file per date using `YYYY-MM-DD+A股短线复盘.md` unless the user specifies another naming convention.
+
+## Data Fallback: Eastmoney Public APIs
+
+Use this only when 妙想 is missing or unstable for a needed field. These are web endpoints, not a guaranteed official quota API, so request slowly and cache results.
+
+Common endpoint families:
+- Quote/detail: `https://push2.eastmoney.com/api/qt/stock/get`
+- Lists/pages: `https://push2.eastmoney.com/api/qt/clist/get`
+- Unified quote list: `https://push2.eastmoney.com/api/qt/ulist.np/get`
+- K-line/history when needed: `https://push2his.eastmoney.com/api/qt/stock/kline/get`
+- Limit-up/market pool pages may live under Eastmoney quote/list APIs or stockrank/pool endpoints; verify response fields before trusting them.
+
+Fallback priorities:
+1. Index close, pct change, and amount: use Eastmoney index quote/K-line endpoints when `mx-data` fails.
+2. Breadth and market temperature: use Eastmoney list APIs to calculate or retrieve上涨家数、下跌家数、涨停、跌停、成交额 when `mx-data` fails.
+3. 涨停池/连板池/炸板池: use Eastmoney pool/list endpoints when available; if fields are absent or inconsistent, write only aggregate counts and say detailed ladder was not stable.
+4. 板块强度/行业涨跌幅: use Eastmoney board/industry list endpoints as a fallback to identify candidate themes, then verify with core-stock performance.
+5. 主力资金流向: use Eastmoney money-flow endpoints only if the returned field names and date match the target date. Otherwise mark资金明细未稳定返回.
+
+Rate and reliability rules:
+- Treat Eastmoney public endpoints as low-frequency fallback, not high-frequency infrastructure.
+- Default to 1 request per second; use 2-3 seconds between paged/list requests.
+- On failure or empty response, retry with exponential backoff such as 5s, 15s, 60s, then stop.
+- Cache raw JSON/CSV under the workspace (`mx_output` or another obvious data folder) before writing reviews.
+- Never hide fallback usage. In the review, say “东方财富公开接口口径” when a key metric came from fallback.
+- If both 妙想 and Eastmoney disagree, use structured values only when date, market, and field definitions match; otherwise write a qualitative judgment instead of forcing a precise number.
 
 ## Style
 
@@ -77,6 +104,6 @@ One-sentence rule: logic is only an entry reason; 盘面强度 is the evidence. 
 
 - Start with a blunt one-paragraph conclusion before tables.
 - Use tables for data, but do not let tables replace judgment.
-- If data is missing, say the metric was not returned by 妙想 and use a qualitative `mx-search` summary.
+- If data is missing from 妙想, try 东方财富公开接口 fallback. If both fail or disagree materially, say the metric was not stable/returned and use a qualitative summary instead of inventing a number.
 - Keep each daily review around 900-1500 Chinese characters unless the user asks for a long version.
 - When creating files, save under the current workspace unless the user specifies another folder.
