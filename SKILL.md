@@ -56,6 +56,21 @@ Capture these whenever available:
 - Money flow: full-market main flow, top industry inflows/outflows, top stock inflows/outflows, institution/沪深股通龙虎榜.
 - Main line judgment: strongest theme, whether it is continuation, acceleration, divergence, or high-low switching.
 
+## Main Line Judgment
+
+Judge short-term A-share main lines by market proof, not story logic. The core question is: after divergence, does money come back, and when it comes back does it spread through the whole sector? A one-day rise is only a rebound. Repeated inflow, core-stock new highs, and sector-wide diffusion are required before calling a direction a main line.
+
+Use this sequence before writing `◆ 三、⭐创历史新高与主线分析`:
+
+1. **Market money-making effect first.** Check limit-up count, highest board, failed-board rate if available, limit-down count, total turnover, whether indices rise with volume, and whether strong stocks have premium. If money-making effect is poor, even a strong sector is only a light-position trial. If money-making effect is good, then identify the strongest direction.
+2. **Sector strength second.** A real main line usually has several traits: sector index expands volume or trends along moving averages; core stocks keep making new highs or hold high levels without collapsing; the sector resists decline on divergence days and repairs proactively the next day; the sector has a ladder of leader, large-cap center, trend stocks, and supplement stocks; after news stimulation it does not become a one-day theme but repeatedly sees money return; high-turnover and high-market-cap stocks can rise, proving institutional and large-capital participation.
+3. **Core stocks matter more than杂毛.** Do not judge the main line by random small stocks. Judge whether core names lead and whether the chain diffuses. Example logic: if 中际旭创、东山精密 pull up after weak opens and CPO/PCB/光模块/算力硬件 keep receiving capital while 天华新能、湖南裕能、德方纳米 spike and fade, AI hardware is the stronger main line and新能源 is only rotational repair.
+4. **Divergence-day return is the key test.** On climax days everything can rise. The real test is whether core stocks are bought after selling pressure, recover after intraday drops, keep trend levels, and see late-session buying. Weak sectors usually spike with sentiment, then lose VWAP/intraday average, lose the open, fall below zero, and fail to see afternoon return.
+5. **Watch sector seesaws.** Short-term capital is limited. When one direction rises and another jumps then fades, money is choosing. Ask: which direction strengthens after a weak open? Which direction is sold after a spike? Which direction has core stocks making new highs? Which direction survives only on low-level supplement stocks? The answer usually identifies the main line.
+6. **Translate judgment into action.** Main-line core-stock divergence can be bought on dips. Weak rotational selloffs are not default buys. Do not chase杂毛 on main-line climax days. Sell rotational names that spike and fade. For secondary-line positions, reduce when they lose intraday average, reduce again when they lose the open, and exit the rest when they lose zero or key daily levels.
+
+One-sentence rule: logic is only an entry reason; 盘面强度 is the evidence. Main-line judgment must move from "I think it has logic" to "capital repeatedly verifies it is the strongest direction."
+
 ## Writing Rules
 
 - Start with a blunt one-paragraph conclusion before tables.
