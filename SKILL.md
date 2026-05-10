@@ -180,3 +180,27 @@ Usage rules:
 - If Tonghuashun blocks scripted access, requires browser interaction, or does not expose historical rows for the target date, state `同花顺数据中心未稳定返回目标日期历史新高明细`; then use public review sources only as a lower-confidence supplement.
 - Label this source in the review as `同花顺数据中心创新高口径`.
 - Do not invent market cap or direction. If Tonghuashun does not provide market cap, use `同花顺未披露`; if direction requires inference from industry/concept, write `按行业/概念归类`.
+
+## Limit-Up Ladder Source Rule
+
+For `连板股梯队`, use `mx-search` as the primary source and `mx-xuangu` / `MX_StockPick` only as a structured supplement.
+
+Recommended `mx-search` query:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; python 'C:\Users\33256\.codex\skills\mx-search\mx_search.py' "YYYY年M月D日 A股 连板梯队 最高连板 连板股 涨停复盘"
+```
+
+Supplemental `mx-xuangu` query:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; python 'C:\Users\33256\.codex\skills\mx-xuangu\mx_xuangu.py' "YYYY年M月D日涨停A股，显示股票简称、连续涨停天数、东财行业、概念、总市值，按连续涨停天数降序"
+```
+
+Rules:
+
+- Extract the written ladder from `mx-search` first, for example `7板：华电辽能；3板：中利集团；2板：辽宁能源、拓日新能、雪浪环境、浙江新能`.
+- Use `mx-xuangu` to supplement stock code, industry, concept, market cap, first limit-up time, and seal order fields.
+- Do not directly trust `MX_StockPick`'s `连续涨停天数` field for historical dates unless the field date matches the target trading day. Local test result: a 2026-03-24 query returned `涨停 2026.03.24` but `连续涨停天数(天) 2026.05.08`, so this field can mix in a latest snapshot.
+- If `mx-xuangu` ladder fields carry a non-target date, write `MX_StockPick连续涨停天数字段日期异常` in notes, keep the `mx-search` ladder as the final ladder, and use `mx-xuangu` only for static descriptive fields.
+- If `mx-search` and public review sources disagree, prefer the source with explicit ladder text and date; label differing counts such as total limit-ups or non-ST limit-ups separately.
