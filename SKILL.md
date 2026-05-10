@@ -69,7 +69,7 @@ Core voice:
 - Direct, trading-log tone; not a broker research report.
 - Use short judgments: "怎么说呢", "说白了", "这不是没行情，是结构性行情", "别瞎追高".
 - Emphasize contradiction: index vs individual stocks, volume vs price, old main line vs new branches.
-- Preserve the repeated structure: 核心结论 -> 市场全景数据 -> 创新高/主线 -> 连板梯队 -> 资金 -> 风险 -> 操作建议.
+- Preserve the repeated structure: 核心结论 -> 市场全景数据 -> 创新高历史个股分析 -> 主线判断 -> 连板梯队 -> 资金 -> 风险 -> 操作建议.
 - Do not write investment promises. End with risk disclaimer if the output is user-facing.
 
 ## Required Sections
@@ -77,7 +77,7 @@ Core voice:
 For a trading day:
 1. `◆ 一、今日核心结论`
 2. `◆ 二、市场全景数据`
-3. `◆ 三、⭐创历史新高与主线分析`
+3. `◆ 三、⭐ 创新高历史个股分析`
 4. `◆ 四、连板股梯队`
 5. `◆ 五、资金流向与龙虎榜`
 6. `◆ 六、风险提示`
@@ -96,7 +96,7 @@ For a non-trading day:
 Capture these whenever available:
 - Index table: 上证指数、深证成指、创业板指、科创50、北证50.
 - Breadth: 成交额、上涨家数、下跌家数、涨停、跌停、涨跌比.
-- New highs: total count, industry concentration, representative stocks.
+- New highs: total count, industry concentration, core table with 股票/细分方向/市值/驱动因素, and the main-line judgment derived from the new-high pool.
 - Limit-up chain: highest board, 3板以上, 2板 groups,晋级率 if available.
 - Money flow: full-market main flow, top industry inflows/outflows, top stock inflows/outflows, institution/沪深股通龙虎榜.
 - Main line judgment: strongest theme, whether it is continuation, acceleration, divergence, or high-low switching.
@@ -105,7 +105,7 @@ Capture these whenever available:
 
 Judge short-term A-share main lines by market proof, not story logic. The core question is: after divergence, does money come back, and when it comes back does it spread through the whole sector? A one-day rise is only a rebound. Repeated inflow, core-stock new highs, and sector-wide diffusion are required before calling a direction a main line.
 
-Use this sequence before writing `◆ 三、⭐创历史新高与主线分析`:
+Use this sequence before writing `◆ 三、⭐ 创新高历史个股分析`:
 
 1. **Market money-making effect first.** Check limit-up count, highest board, failed-board rate if available, limit-down count, total turnover, whether indices rise with volume, and whether strong stocks have premium. If money-making effect is poor, even a strong sector is only a light-position trial. If money-making effect is good, then identify the strongest direction.
 2. **Always compare with the previous trading day.** A single-day surge is insufficient. Check whether yesterday's strong direction continues, repairs after divergence, or is replaced. Compare: limit-up count, limit-down count, highest board, total turnover, main inflow/outflow, new-high concentration, core-stock performance, and whether yesterday's leaders have premium or negative feedback today.
@@ -117,20 +117,21 @@ Use this sequence before writing `◆ 三、⭐创历史新高与主线分析`:
 
 One-sentence rule: logic is only an entry reason; 盘面强度 is the evidence. Main-line judgment must move from "I think it has logic" to "capital repeatedly verifies it is the strongest direction."
 
-## New High Table Rule
+## New High Section Rule
 
-Every trading-day review must include a standalone table under `◆ 三、⭐创历史新高与主线分析` for 创历史新高个股与方向.
+Every trading-day review must include `◆ 三、⭐ 创新高历史个股分析`. This section follows the sample HTML review structure: first quantify today's new-high pool, then list core new-high stocks, then make the main-line judgment.
 
-Required columns:
-- `创新高数据`: e.g. 收盘价创历史新高, 资金口径, 方向归类.
-- `数量/方向`: total count and industry concentration when available.
-- `代表个股`: representative stocks, especially core/high-turnover names.
-- `复盘含义`: what the new-high pool says about the main line.
+Required order:
+1. One blunt paragraph: today's 创历史新高 count, main industry concentration, and judgment. Example: `12只个股收盘价创历史新高，电子/建筑装饰/机械设备最集中。数量不大，但在恐慌后修复日能新高，说明资金只认核心，不是全市场主升。`
+2. `板块分布` table when source data supports industry distribution. Columns: `板块`, `数量`, `代表股`, `强度/判断`. If industry distribution is unavailable after all fallback sources, write one sentence explaining the missing field instead of silently skipping it.
+3. Required `创新高历史核心个股` table. Columns must be exactly: `股票`, `细分方向`, `市值`, `驱动因素`.
+4. `主线分析` paragraph after the table. This paragraph must connect the new-high pool to the broader main-line judgment.
 
 Rules:
-- Do not omit the table. If data is unavailable after 妙想、东方财富公开接口、and public web review sources, write `公开源未稳定返回完整新高池` in the table.
+- Do not omit `创新高历史核心个股` table. If data is unavailable after 妙想、东方财富公开接口、and public web review sources, write `公开源未稳定返回完整新高池` in the table and explain that the main-line judgment falls back to breadth/limit-up/sector strength.
+- `市值` should use same-day A股总市值 or流通市值 when public sources provide it. If only partial market-cap data is available, write the available value and mark others as `公开源未披露`; do not invent market cap.
 - New-high data must feed the main-line judgment. A sector with many new highs but poor breadth is局部抱团; a sector with repeated new highs after divergence has main-line evidence.
-- Prefer representative core stocks over long lists of small caps.
+- Prefer representative core/high-turnover stocks over long lists of small caps. Use 5-8 rows for the core table unless the user asks for a full list.
 
 ## Writing Rules
 
