@@ -11,6 +11,7 @@ description: Generate Chinese A-share short-term daily market reviews using MXSK
 2. Use 妙想 skills first:
    - `mx-data`: query index close, pct change, amount; 全部A股上涨家数、下跌家数、涨停家数、跌停家数、成交额.
    - `mx-search`: query same-day A股复盘、创历史新高、连板股、龙虎榜、主线、资金流向.
+   - `mx-xuangu` / `MX_StockPick`: for historical-new-high stocks, query `YYYY年M月D日创历史新高的A股，显示股票简称、东财行业、概念、总市值`. This is the primary source for the `创新高历史个股分析` section.
    - For every trading-day review, also query the previous trading day for the same core market breadth and main-line context unless the user explicitly says not to. Main-line judgment must compare today with the previous trading day; do not infer a main line from a single day's strength alone.
    - For non-trading days, use `mx-search` for 周末政策、产业催化、机构策略、下周主线.
 3. If 妙想 returns empty, malformed, rate-limited, irrelevant, or clearly unstable data, fall back to 东方财富 public web APIs for the missing fields. Keep the fallback low-frequency and source-tagged.
@@ -133,6 +134,26 @@ Rules:
 - New-high data must feed the main-line judgment. A sector with many new highs but poor breadth is局部抱团; a sector with repeated new highs after divergence has main-line evidence.
 - Prefer representative core/high-turnover stocks over long lists of small caps. Use 5-8 rows for the core table unless the user asks for a full list.
 
+## New-High Primary Source: MX_StockPick
+
+For `创新高历史个股分析`, first use 妙想选股能力 through the local `mx-xuangu` skill, which maps to `MX_StockPick`.
+
+Recommended query:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; python 'C:\Users\33256\.codex\skills\mx-xuangu\mx_xuangu.py' "YYYY年M月D日创历史新高的A股，显示股票简称、东财行业、概念、总市值"
+```
+
+Usage rules:
+
+- Read the CSV/JSON path printed by `mx_xuangu.py`; do not rely on memory. On Windows, keep `PYTHONIOENCODING=utf-8` and `PYTHONUTF8=1` if the command hits GBK encoding errors.
+- Treat returned row count as today's historical-new-high stock count, after checking the date fields match the target trading day.
+- Use `名称`/`股票简称` as the stock name, `东财行业分类二级` plus high-relevance concepts as `细分方向`, `总市值` as market cap, and `概念`/same-day catalyst research as `驱动因素`.
+- Group the new-high pool by `东财行业分类二级` and high-frequency concepts to write `板块分布`; do not just list stocks.
+- The core table should prioritize large market-cap, high-turnover, sector-center, or repeated-new-high names. Typical roles include `趋势核心`, `中军`, `弹性核心`, and `新高核心`.
+- Feed the new-high concentration into main-line judgment and stock selection. A direction with multiple core new highs after prior-day divergence receives stronger main-line evidence; a direction with only isolated small-cap new highs remains rotational.
+- If `MX_StockPick` returns no rows, malformed rows, wrong-date rows, or unrelated fields, explicitly write that the `MX_StockPick`口径 was unstable, then use the Tonghuashun fallback below.
+
 ## Writing Rules
 
 - Start with a blunt one-paragraph conclusion before tables.
@@ -143,7 +164,7 @@ Rules:
 
 ## New-High Fallback: Tonghuashun Data Center
 
-When writing `创新高历史个股分析`, use MXSKILLS first. If MXSKILLS returns empty, malformed, or only unrelated fields for historical-new-high data, query Tonghuashun Data Center before falling back to general news/review articles.
+When writing `创新高历史个股分析`, use `MX_StockPick` first. If `MX_StockPick` returns empty, malformed, wrong-date, or only unrelated fields for historical-new-high data, query Tonghuashun Data Center before falling back to general news/review articles.
 
 Preferred page:
 
