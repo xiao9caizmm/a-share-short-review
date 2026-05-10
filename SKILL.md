@@ -14,9 +14,10 @@ description: Generate Chinese A-share short-term daily market reviews using MXSK
    - For every trading-day review, also query the previous trading day for the same core market breadth and main-line context unless the user explicitly says not to. Main-line judgment must compare today with the previous trading day; do not infer a main line from a single day's strength alone.
    - For non-trading days, use `mx-search` for 周末政策、产业催化、机构策略、下周主线.
 3. If 妙想 returns empty, malformed, rate-limited, irrelevant, or clearly unstable data, fall back to 东方财富 public web APIs for the missing fields. Keep the fallback low-frequency and source-tagged.
-4. Prefer structured `mx-data` values over news snippets when they conflict. If using fallback data, prefer 东方财富 structured JSON over text snippets. Use `mx-search`/资讯 only for context that structured sources do not reliably return, especially 创历史新高数量、行业分布、连板梯队、龙虎榜和主力资金.
-5. Keep source facts internally traceable. Mention when a metric is from `mx-search`/资讯口径 or 东方财富公开接口 and avoid over-precise claims if multiple口径 differ.
-6. Write one Markdown file per date using `YYYY-MM-DD+A股短线复盘.md` unless the user specifies another naming convention.
+4. If both 妙想 and 东方财富 public APIs fail or do not expose a historical field, use public web review sources as the third priority. Prefer established financial/news sites such as 东方财富网/证券时报/中国证券报/新浪财经/中新经纬/金融界/21财经/经济观察网. Use these sources mainly for market breadth, limit-up/down counts, market-review context, major themes, and money-flow summaries. Do not treat social posts as primary data unless no other source exists.
+5. Prefer structured `mx-data` values over news snippets when they conflict. If using fallback data, prefer 东方财富 structured JSON over text snippets, then public web review data. Use `mx-search`/资讯 only for context that structured sources do not reliably return, especially 创历史新高数量、行业分布、连板梯队、龙虎榜和主力资金.
+6. Keep source facts internally traceable. Mention when a metric is from `mx-search`/资讯口径、东方财富公开接口、or 公开网络复盘口径 and avoid over-precise claims if multiple口径 differ.
+7. Write one Markdown file per date using `YYYY-MM-DD+A股短线复盘.md` unless the user specifies another naming convention.
 
 ## Data Fallback: Eastmoney Public APIs
 
@@ -43,6 +44,22 @@ Rate and reliability rules:
 - Cache raw JSON/CSV under the workspace (`mx_output` or another obvious data folder) before writing reviews.
 - Never hide fallback usage. In the review, say “东方财富公开接口口径” when a key metric came from fallback.
 - If both 妙想 and Eastmoney disagree, use structured values only when date, market, and field definitions match; otherwise write a qualitative judgment instead of forcing a precise number.
+
+## Third Priority: Public Web Review Sources
+
+Use public web review sources only after 妙想 and 东方财富 public APIs are insufficient for the requested historical field.
+
+Allowed usage:
+- Historical上涨家数/下跌家数、涨停/跌停、成交额、三大指数收评.
+- Same-day major themes, leading sectors, obvious risk events, and headline money-flow summaries.
+- Cross-checking Eastmoney public API outputs when fields are missing or suspicious.
+
+Rules:
+- Prefer reputable financial/news sources over forums. Use forum/social content only as a last resort and label it clearly.
+- Cross-check at least two sources for important numbers when possible. If values differ, write “约/超/近” and cite the source口径 in prose.
+- Do not copy long passages. Summarize the facts and keep source URLs in notes or final response.
+- In the review, label key fallback data as “公开网络复盘口径” when it did not come from 妙想 or 东方财富 structured JSON.
+- If public sources only provide qualitative descriptions, write qualitative market judgment instead of inventing missing fields.
 
 ## Style
 
@@ -100,10 +117,25 @@ Use this sequence before writing `◆ 三、⭐创历史新高与主线分析`:
 
 One-sentence rule: logic is only an entry reason; 盘面强度 is the evidence. Main-line judgment must move from "I think it has logic" to "capital repeatedly verifies it is the strongest direction."
 
+## New High Table Rule
+
+Every trading-day review must include a standalone table under `◆ 三、⭐创历史新高与主线分析` for 创历史新高个股与方向.
+
+Required columns:
+- `创新高数据`: e.g. 收盘价创历史新高, 资金口径, 方向归类.
+- `数量/方向`: total count and industry concentration when available.
+- `代表个股`: representative stocks, especially core/high-turnover names.
+- `复盘含义`: what the new-high pool says about the main line.
+
+Rules:
+- Do not omit the table. If data is unavailable after 妙想、东方财富公开接口、and public web review sources, write `公开源未稳定返回完整新高池` in the table.
+- New-high data must feed the main-line judgment. A sector with many new highs but poor breadth is局部抱团; a sector with repeated new highs after divergence has main-line evidence.
+- Prefer representative core stocks over long lists of small caps.
+
 ## Writing Rules
 
 - Start with a blunt one-paragraph conclusion before tables.
 - Use tables for data, but do not let tables replace judgment.
-- If data is missing from 妙想, try 东方财富公开接口 fallback. If both fail or disagree materially, say the metric was not stable/returned and use a qualitative summary instead of inventing a number.
+- If data is missing from 妙想, try 东方财富公开接口 fallback; if that is insufficient, use public web review sources. If all sources fail or disagree materially, say the metric was not stable/returned and use a qualitative summary instead of inventing a number.
 - Keep each daily review around 900-1500 Chinese characters unless the user asks for a long version.
 - When creating files, save under the current workspace unless the user specifies another folder.
