@@ -140,3 +140,20 @@ Rules:
 - If data is missing from 妙想, try 东方财富公开接口 fallback; if that is insufficient, use public web review sources. If all sources fail or disagree materially, say the metric was not stable/returned and use a qualitative summary instead of inventing a number.
 - Keep each daily review around 900-1500 Chinese characters unless the user asks for a long version.
 - When creating files, save under the current workspace unless the user specifies another folder.
+
+## New-High Fallback: Tonghuashun Data Center
+
+When writing `创新高历史个股分析`, use MXSKILLS first. If MXSKILLS returns empty, malformed, or only unrelated fields for historical-new-high data, query Tonghuashun Data Center before falling back to general news/review articles.
+
+Preferred page:
+
+- `https://data.10jqka.com.cn/rank/cxg/` - 同花顺数据中心，技术选股，创新高.
+
+Usage rules:
+
+- Use the `历史新高` view/category when available; do not confuse it with monthly, half-year, or yearly highs.
+- Extract at minimum: stock name, stock code, close/latest price if shown,涨跌幅, 所属行业/概念 when shown, and the listed high type/date.
+- Summarize the historical-new-high pool by direction: count names by industry/theme, identify 3-8 representative core/high-turnover stocks, and then write the main-line judgment from that distribution.
+- If Tonghuashun blocks scripted access, requires browser interaction, or does not expose historical rows for the target date, state `同花顺数据中心未稳定返回目标日期历史新高明细`; then use public review sources only as a lower-confidence supplement.
+- Label this source in the review as `同花顺数据中心创新高口径`.
+- Do not invent market cap or direction. If Tonghuashun does not provide market cap, use `同花顺未披露`; if direction requires inference from industry/concept, write `按行业/概念归类`.
