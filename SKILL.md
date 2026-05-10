@@ -118,6 +118,28 @@ Use this sequence before writing `◆ 三、⭐ 创新高历史个股分析`:
 
 One-sentence rule: logic is only an entry reason; 盘面强度 is the evidence. Main-line judgment must move from "I think it has logic" to "capital repeatedly verifies it is the strongest direction."
 
+## Mandatory Stock Classification Source Check
+
+When a review assigns a stock to a main-line direction, verify the classification with the same source chain every time:
+
+1. **MX_StockPick / `mx-xuangu` first.** Check `东财行业分类二级`, `申万行业分类`, `概念`, target-day涨跌幅, and market cap. Industry fields are the first gate; concept tags are only supporting evidence.
+2. **`mx-search` second.** Search the target date plus the stock name and likely directions, such as `YYYY年M月D日 股票名 上涨 原因 机器人 商业航天 光通信`. Use this to identify the actual same-day catalyst, abnormal-move announcement, Dragon-Tiger list, or public review explanation.
+3. **财联社焦点复盘/连板分析 third.** For hot themes such as 机器人、商业航天、CPO、AI应用、PCB, check whether 财联社 or another reputable same-day review explicitly names the stock under that theme.
+
+Classification rules:
+
+- If industry, same-day catalyst, and public review agree, classify the stock into that direction.
+- If industry and same-day catalyst point to one direction but loose concept tags point elsewhere, follow the industry plus same-day catalyst.
+- If only a concept tag links the stock to a direction and there is no industry match or same-day review confirmation, do not use it as that direction's representative stock.
+- For mixed-attribute names, state the stronger same-day reason in prose; do not simplify them into the hotter theme.
+
+Local validation examples:
+
+- `三瑞智能` on 2026-05-08: stronger evidence was 人形机器人/机器人动力模组/次新/异动公告, not商业航天 core.
+- `中瓷电子` on 2026-05-08: stronger evidence was 通信设备、光通信陶瓷封装、6G、第三代半导体, not商业航天 core.
+- `杰普特` on 2026-05-08: better classified as 激光设备、光通信设备链、PCB/先进封装设备, not机器人主线.
+- `大族激光` on 2026-05-08: stronger move reason was 激光设备、PCB设备、先进封装设备、AI光通信设备链; do not use it as a pure机器人 representative unless same-day review explicitly frames it that way.
+
 ## New High Section Rule
 
 Every trading-day review must include `◆ 三、⭐ 创新高历史个股分析`. This section follows the sample HTML review structure: first quantify today's new-high pool, then list core new-high stocks, then make the main-line judgment.
