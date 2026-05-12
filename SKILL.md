@@ -10,15 +10,15 @@ description: Generate Chinese A-share short-term daily market reviews using MXSK
 1. Read the requested date range. Treat weekends and exchange holidays as non-trading days; write a "周末消息/下周策略" review instead of inventing trading data.
 2. Use 妙想 skills first:
    - `mx-data`: query index close, pct change, amount; 全部A股上涨家数、下跌家数、涨停家数、跌停家数、成交额.
-   - `mx-search`: query same-day A股复盘、创历史新高、连板股、龙虎榜、主线、资金流向.
+   - `mx-search`: query same-day A股复盘、创历史新高、连板股、龙虎榜、主线、资金流向、回头波风险.
    - `mx-xuangu` / `MX_StockPick`: for historical-new-high stocks, query `YYYY年M月D日创历史新高的A股，显示股票简称、东财行业、概念、总市值`. This is the primary source for the `创新高历史个股分析` section.
    - For every trading-day review, also query the previous trading day for the same core market breadth and main-line context unless the user explicitly says not to. Main-line judgment must compare today with the previous trading day; do not infer a main line from a single day's strength alone.
    - For non-trading days, use `mx-search` for 周末政策、产业催化、机构策略、下周主线.
 3. If 妙想 returns empty, malformed, rate-limited, irrelevant, or clearly unstable data, fall back to 东方财富 public web APIs for the missing fields. Keep the fallback low-frequency and source-tagged.
 4. If both 妙想 and 东方财富 public APIs fail or do not expose a historical field, use public web review sources as the third priority. Prefer established financial/news sites such as 东方财富网/证券时报/中国证券报/新浪财经/中新经纬/金融界/21财经/经济观察网. Use these sources mainly for market breadth, limit-up/down counts, market-review context, major themes, and money-flow summaries. Do not treat social posts as primary data unless no other source exists.
-5. Prefer structured `mx-data` values over news snippets when they conflict. If using fallback data, prefer 东方财富 structured JSON over text snippets, then public web review data. Use `mx-search`/资讯 only for context that structured sources do not reliably return, especially 创历史新高数量、行业分布、连板梯队、龙虎榜和主力资金.
+5. Prefer structured `mx-data` values over news snippets when they conflict. If using fallback data, prefer 东方财富 structured JSON over text snippets, then public web review data. Use `mx-search`/资讯 only for context that structured sources do not reliably return, especially 创历史新高数量、行业分布、连板梯队、回头波、龙虎榜和主力资金.
 6. Keep source facts internally traceable. Mention when a metric is from `mx-search`/资讯口径、东方财富公开接口、or 公开网络复盘口径 and avoid over-precise claims if multiple口径 differ.
-7. Write one Markdown file per date using `YYYY-MM-DD+A股短线复盘.md` unless the user specifies another naming convention.
+7. Write one Markdown file per date under `A股复盘/A股短线复盘` using `YYYYMMDDA股短线复盘.md` unless the user specifies another naming convention.
 
 ## Data Fallback: Eastmoney Public APIs
 
@@ -96,7 +96,8 @@ For a non-trading day:
 
 Capture these whenever available:
 - Index table: 上证指数、深证成指、创业板指、科创50、北证50.
-- Breadth: 成交额、上涨家数、下跌家数、涨停、跌停、涨跌比.
+- Breadth: 成交额、上涨家数、下跌家数、涨停、跌停、涨跌比. 涨停、跌停、炸板、连板梯队默认全部使用非 ST 口径；拉取明细时过滤股票简称包含 `ST`、`*ST`、`S*ST`、`退市` 的股票，除非用户明确要求包含 ST。
+- 回头波: today's intraday pullback from high to close. Formula: `回头波 = (日内最高价 - 收盘价) / 日内最高价 * 100%`. Count and list non-ST stocks where `回头波 > 8%`; include industry/theme concentration and representative names. This is a risk gauge for intraday fade and chasing-loss effect, not the same as炸板率.
 - New highs: total count, industry concentration, core table with 股票/细分方向/市值/驱动因素, and the main-line judgment derived from the new-high pool.
 - Limit-up chain: highest board, 3板以上, 2板 groups,晋级率 if available.
 - Money flow: full-market main flow, top industry inflows/outflows, top stock inflows/outflows, institution/沪深股通龙虎榜.
@@ -109,7 +110,7 @@ Judge short-term A-share main lines by market proof, not story logic. The core q
 Use this sequence before writing `◆ 三、⭐ 创新高历史个股分析`:
 
 1. **Market money-making effect first.** Check limit-up count, highest board, failed-board rate if available, limit-down count, total turnover, whether indices rise with volume, and whether strong stocks have premium. If money-making effect is poor, even a strong sector is only a light-position trial. If money-making effect is good, then identify the strongest direction.
-2. **Always compare with the previous trading day.** A single-day surge is insufficient. Check whether yesterday's strong direction continues, repairs after divergence, or is replaced. Compare: limit-up count, limit-down count, highest board, total turnover, main inflow/outflow, new-high concentration, core-stock performance, and whether yesterday's leaders have premium or negative feedback today.
+2. **Always compare with the previous trading day.** A single-day surge is insufficient. Check whether yesterday's strong direction continues, repairs after divergence, or is replaced. Compare: limit-up count, limit-down count, highest board, total turnover, 回头波>8% stocks, main inflow/outflow, new-high concentration, core-stock performance, and whether yesterday's leaders have premium or negative feedback today.
 3. **Sector strength third.** A real main line usually has several traits: sector index expands volume or trends along moving averages; core stocks keep making new highs or hold high levels without collapsing; the sector resists decline on divergence days and repairs proactively the next day; the sector has a ladder of leader, large-cap center, trend stocks, and supplement stocks; after news stimulation it does not become a one-day theme but repeatedly sees money return; high-turnover and high-market-cap stocks can rise, proving institutional and large-capital participation.
 4. **Core stocks matter more than杂毛.** Do not judge the main line by random small stocks. Judge whether core names lead and whether the chain diffuses. Example logic: if 中际旭创、东山精密 pull up after weak opens and CPO/PCB/光模块/算力硬件 keep receiving capital while 天华新能、湖南裕能、德方纳米 spike and fade, AI hardware is the stronger main line and新能源 is only rotational repair.
 5. **Divergence-day return is the key test.** On climax days everything can rise. The real test is whether core stocks are bought after selling pressure, recover after intraday drops, keep trend levels, and see late-session buying. Weak sectors usually spike with sentiment, then lose VWAP/intraday average, lose the open, fall below zero, and fail to see afternoon return.
@@ -156,6 +157,20 @@ Rules:
 - New-high data must feed the main-line judgment. A sector with many new highs but poor breadth is局部抱团; a sector with repeated new highs after divergence has main-line evidence.
 - Prefer representative core/high-turnover stocks over long lists of small caps. Use 5-8 rows for the core table unless the user asks for a full list.
 
+## 回头波 Risk Rule
+
+Every trading-day review must include a concise `回头波风险统计` paragraph or table. `回头波` means the intraday pullback from the stock's daily high to the close:
+
+`回头波 = (日内最高价 - 收盘价) / 日内最高价 * 100%`
+
+Required handling:
+
+- Count non-ST A-share stocks with `回头波 > 8%` on the target date. Exclude `ST`, `*ST`, `S*ST`, and `退市` names by default.
+- Prefer structured OHLC data from 妙想/Eastmoney public APIs. If structured data is unavailable, use public review sources only as qualitative support and mark the count as unavailable.
+- Output at minimum: total count, concentrated industries/themes, and 5-10 representative stocks with `股票`, `方向/行业`, `最高价`, `收盘价`, `回头波`.
+- Interpret the result: many `回头波 > 8%` names means intraday chasing-loss effect is rising; if concentrated in a hot theme, downgrade that theme's continuation quality unless core stocks still hold trend.
+- Do not confuse 回头波 with炸板率. 炸板率 measures failed limit-up boards; 回头波 measures all-stock intraday fade from high to close.
+
 ## New-High Primary Source: MX_StockPick
 
 For `创新高历史个股分析`, first use 妙想选股能力 through the local `mx-xuangu` skill, which maps to `MX_StockPick`.
@@ -184,7 +199,7 @@ Usage rules:
 - Use tables for data, but do not let tables replace judgment.
 - If data is missing from 妙想, try 东方财富公开接口 fallback; if that is insufficient, use public web review sources. If all sources fail or disagree materially, say the metric was not stable/returned and use a qualitative summary instead of inventing a number.
 - Keep each daily review around 900-1500 Chinese characters unless the user asks for a long version.
-- When creating files, save under the current workspace unless the user specifies another folder.
+- When creating files, save under `A股复盘/A股短线复盘` in the current workspace unless the user specifies another folder.
 
 ## New-High Fallback: Tonghuashun Data Center
 
@@ -216,11 +231,12 @@ $env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; python 'C:\Users\33256\.code
 Supplemental `mx-xuangu` query:
 
 ```powershell
-$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; python 'C:\Users\33256\.codex\skills\mx-xuangu\mx_xuangu.py' "YYYY年M月D日涨停A股，显示股票简称、连续涨停天数、东财行业、概念、总市值，按连续涨停天数降序"
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; python 'C:\Users\33256\.codex\skills\mx-xuangu\mx_xuangu.py' "YYYY年M月D日涨停A股，剔除ST、*ST、S*ST、退市股，显示股票简称、连续涨停天数、东财行业、概念、总市值，按连续涨停天数降序"
 ```
 
 Rules:
 
+- All limit-up, limit-down, failed-board, and consecutive-board pulls must exclude ST stocks by default. When using `mx-xuangu`, add the natural-language condition `剔除ST、*ST、S*ST、退市股`; when parsing public review text, remove names containing `ST`/`*ST`/`S*ST`/`退市` from counts and ladders. If the public source only provides all-market counts including ST and no detail list, label the field as `含ST口径` and do not mix it with non-ST counts.
 - Extract the written ladder from `mx-search` first, for example `7板：华电辽能；3板：中利集团；2板：辽宁能源、拓日新能、雪浪环境、浙江新能`.
 - Use `mx-xuangu` to supplement stock code, industry, concept, market cap, first limit-up time, and seal order fields.
 - Do not directly trust `MX_StockPick`'s `连续涨停天数` field for historical dates unless the field date matches the target trading day. Local test result: a 2026-03-24 query returned `涨停 2026.03.24` but `连续涨停天数(天) 2026.05.08`, so this field can mix in a latest snapshot.
